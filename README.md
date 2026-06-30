@@ -24,7 +24,7 @@ DirectX-Examples/
 
 ## Setup
 
-When opening the project in VS Code, create an `Output` folder in the root of the repository.
+When opening the project in VS Code, the `Output` folder should exist at the root of the repository.
 
 The `Launcher.bat` file expects that folder to exist so it can place compiled executables there.
 

@@ -1,0 +1,25 @@
+# Executables
+*.exe
+
+# Object files
+*.o
+*.obj
+
+# Libraries
+*.a
+*.lib
+
+# Dynamic libraries
+*.dll
+
+# Debug symbols
+*.pdb
+
+# Build output
+Output/*.exe
+Output/*.o
+Output/*.obj
+
+# Temporary files
+*.tmp
+*.log
