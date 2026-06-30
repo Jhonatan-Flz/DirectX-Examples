@@ -1,5 +1,6 @@
 ﻿#include <windows.h>
 #include <d2d1.h>
+#include "include\common_direct2d.hpp"
 
 static ID2D1Factory* pFactory = nullptr;
 static ID2D1HwndRenderTarget* pRenderTarget = nullptr;
@@ -9,14 +10,7 @@ static ID2D1SolidColorBrush* pBlueBrush = nullptr;
 static ID2D1SolidColorBrush* pRedBrush = nullptr;
 static ID2D1SolidColorBrush* pGridBrush = nullptr;
 
-float minimum_float ( float first, float second ) {
-
-	if ( first < second ) { return first; }
-	return second;
-
-}
-
-void release_brush ( ID2D1SolidColorBrush*& brush ) {
+void release_brush ( ID2D1SolidColorBrush *& brush ) {
 
 	if ( brush ) {
 

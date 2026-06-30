@@ -3,6 +3,7 @@
 #include <dwrite.h>
 #include <stdlib.h>
 #include <time.h>
+#include "include\common_direct2d.hpp"
 
 using namespace std;
 
