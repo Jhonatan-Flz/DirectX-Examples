@@ -23,3 +23,7 @@ Output/*.obj
 # Temporary files
 *.tmp
 *.log
+
+# Code snippets
+*.code-snippets
+.vscode/*.code-snippets
