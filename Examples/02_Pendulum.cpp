@@ -1,7 +1,3 @@
-#include <windows.h>
-#include <d2d1.h>
-#include <dwrite.h>
-#include <cmath>
 #include "include\common_direct2d.hpp"
 
 ID2D1Factory* pD2DFactory = nullptr;
@@ -28,9 +24,9 @@ double g_initial_angle = 0.8;
 const UINT_PTR TIMER_ID = 1;
 const UINT TIMER_INTERVAL_MS = 16;
 
-const wchar_t* MAIN_TITLE = L"Pendulo - Win32 + Direct2D";
-const wchar_t* PAUSE_TITLE = L"Pendulo - Paused";
-const wchar_t* DRAG_TITLE = L"Pendulo - Dragging";
+const wchar_t* MAIN_TITLE = L"Win32 + Direct2D";
+const wchar_t* PAUSE_TITLE = L"Paused";
+const wchar_t* DRAG_TITLE = L"Dragging";
 const wchar_t* PAUSE_HINT = L"Press Space to pause";
 
 float g_bob_radius = 16.0f;
@@ -351,7 +347,7 @@ LRESULT window_procedure ( HWND handle, UINT message_number, WPARAM word_param, 
 
 }
 
-int WINAPI wWinMain ( HINSTANCE handle_instance, HINSTANCE deprecated_instance, LPWSTR chain, int cmd ) {
+int wWinMain ( HINSTANCE handle_instance, HINSTANCE deprecated_instance, LPWSTR chain, int cmd ) {
 
 	WNDCLASS wc = {
 
