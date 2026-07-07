@@ -1,10 +1,6 @@
-#include <windows.h>
-#include <d2d1.h>
-#include <dwrite.h>
 #include <stdlib.h>
 #include <time.h>
 #include "include\common_direct2d.hpp"
-
 using namespace std;
 
 ID2D1Factory* pD2DFactory = nullptr;
@@ -99,23 +95,23 @@ LRESULT window_procedure ( HWND handle, UINT message_number, WPARAM word_param, 
 
 }
 
-int wWinMain ( HINSTANCE handle_instance, HINSTANCE deprecated_instance, LPWSTR Chain, int CMD ) {
+int wWinMain ( HINSTANCE handle_instance, HINSTANCE deprecated_instance, LPWSTR chain, int CMD ) {
 
 	srand ( static_cast <unsigned int> ( time ( NULL ) ) );
 
 	WNDCLASS wc = {
 
-		( CS_HREDRAW | CS_VREDRAW ),
-		window_procedure,
-		0,
-		0,
-		handle_instance,
-		LoadIcon ( NULL, IDI_APPLICATION ),
-		LoadCursor ( NULL, IDC_ARROW ),
-		( HBRUSH ) ( COLOR_WINDOW + 1 ),
-		NULL,
-		L"window example"
-	
+		( CS_HREDRAW | CS_VREDRAW ),              // Style
+		window_procedure,                         // Procedure
+		0,                                        // Class extra bytes
+		0,                                        // Window extra bytes
+		handle_instance,                          // Handle instance
+		LoadIcon ( NULL, IDI_APPLICATION ),       // Icon
+		LoadCursor ( NULL, IDC_ARROW ),           // Cursor
+		( HBRUSH ) ( COLOR_WINDOW + 1 ),          // Background brush
+		NULL,                                     // Pointer to menu name
+		L"Bouncing window"		                 // Window class name
+
 	};
 
 	RegisterClass ( &wc );
