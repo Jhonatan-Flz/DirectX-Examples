@@ -110,7 +110,7 @@ int wWinMain ( HINSTANCE handle_instance, HINSTANCE deprecated_instance, LPWSTR 
 		LoadCursor ( NULL, IDC_ARROW ),           // Cursor
 		( HBRUSH ) ( COLOR_WINDOW + 1 ),          // Background brush
 		NULL,                                     // Pointer to menu name
-		L"Bouncing window"		                 // Window class name
+		L"Screen saver"		                 // Window class name
 
 	};
 
@@ -118,7 +118,7 @@ int wWinMain ( HINSTANCE handle_instance, HINSTANCE deprecated_instance, LPWSTR 
 
 	HWND handle = CreateWindow (
 
-		L"window example",
+		L"Screen saver",
 		L"DVD Screensaver",
 		WS_POPUP,
 		300,
