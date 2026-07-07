@@ -8,7 +8,7 @@
             "args": [
                 "/c",
                 "start",
-                ".\\.vscode\\Launcher.bat",
+                ".\\.vscode\\launcher.bat",
                 "${file}",
                 "${fileBasenameNoExtension}.exe"
             ],
