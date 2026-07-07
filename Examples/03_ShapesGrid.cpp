@@ -1,6 +1,4 @@
-﻿#include <windows.h>
-#include <d2d1.h>
-#include "include\common_direct2d.hpp"
+﻿#include "include\common_direct2d.hpp"
 
 static ID2D1Factory* pFactory = nullptr;
 static ID2D1HwndRenderTarget* pRenderTarget = nullptr;
