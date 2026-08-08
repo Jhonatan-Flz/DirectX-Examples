@@ -313,31 +313,29 @@ void draw_triangle_outline ( D2D1_POINT_2F a, D2D1_POINT_2F b, D2D1_POINT_2F c, 
 
 void draw_point_dot ( D2D1_POINT_2F point ) {
 
-    D2D1_ELLIPSE dot = D2D1::Ellipse ( point, 6.0f, 6.0f );
-    app.render_target -> FillEllipse ( dot, app.point_brush );
+	D2D1_ELLIPSE dot = D2D1::Ellipse ( point, 6.0f, 6.0f );
+	app.render_target -> FillEllipse ( dot, app.point_brush );
 
 }
 
 void draw_point_label ( D2D1_POINT_2F point, const wchar_t* name, float offset_x, float offset_y ) {
 
-    wchar_t buffer[64];
-    swprintf ( buffer, 64, L"%ls (%.0f, %.0f)", name, point.x, point.y );
+	wchar_t buffer [64];
+	swprintf ( buffer, 64, L"%ls (%.0f, %.0f)", name, point.x, point.y );
 
-    D2D1_RECT_F label_rect = D2D1::RectF (
-        point.x + offset_x, point.y + offset_y,
-        point.x + offset_x + 170.0f, point.y + offset_y + 22.0f
-    );
-
-    app.render_target -> DrawText ( buffer, static_cast<UINT32> ( wcslen ( buffer ) ), app.label_format, label_rect, app.point_brush );
+	D2D1_RECT_F label_rect = D2D1::RectF ( point.x + offset_x, point.y + offset_y, point.x + offset_x + 170.0f, point.y + offset_y + 22.0f );
+	app.render_target -> DrawText ( buffer, static_cast<UINT32> ( wcslen ( buffer ) ), app.label_format, label_rect, app.point_brush );
 
 }
 
 void draw_caption ( const wchar_t* text ) {
 
-    D2D1_RECT_F caption_rect = D2D1::RectF (
-        60.0f, static_cast<float> ( app.client_height ) - 92.0f,
-        static_cast<float> ( app.client_width ) - 60.0f, static_cast<float> ( app.client_height ) - 58.0f
-    );
+	D2D1_RECT_F caption_rect = D2D1::RectF (
+		
+		60.0f, static_cast<float> ( app.client_height ) - 92.0f,
+		static_cast<float> ( app.client_width ) - 60.0f, static_cast<float> ( app.client_height ) - 58.0f
+	
+	);
 
     app.render_target -> DrawText ( text, static_cast<UINT32> ( wcslen ( text ) ), app.caption_format, caption_rect, app.faint_brush );
 
@@ -345,37 +343,31 @@ void draw_caption ( const wchar_t* text ) {
 
 void draw_header (  ) {
 
-    float margin = 60.0f;
-    float width = static_cast<float> ( app.client_width ) - ( margin * 2.0f );
+	float margin = 60.0f;
+	float width = static_cast <float> ( app.client_width ) - ( margin * 2.0f );
 
-    D2D1_RECT_F title_rect = D2D1::RectF ( margin, 34.0f, margin + width, 74.0f );
-    D2D1_RECT_F body_rect = D2D1::RectF ( margin, 82.0f, margin + width, 200.0f );
+	D2D1_RECT_F title_rect = D2D1::RectF ( margin, 34.0f, margin + width, 74.0f );
+	D2D1_RECT_F body_rect = D2D1::RectF ( margin, 82.0f, margin + width, 200.0f );
 
-    const stage_content& content = stages[ app.current_stage ];
+	const stage_content& content = stages [app.current_stage];
 
-    app.render_target -> DrawText (
-        content.title, static_cast<UINT32> ( wcslen ( content.title ) ),
-        app.title_format, title_rect, app.accent_brush
-    );
-
-    app.render_target -> DrawText (
-        content.body, static_cast<UINT32> ( wcslen ( content.body ) ),
-        app.body_format, body_rect, app.text_brush
-    );
+	app.render_target -> DrawText ( content.title, static_cast<UINT32> ( wcslen ( content.title ) ), app.title_format, title_rect, app.accent_brush );
+	app.render_target -> DrawText ( content.body, static_cast<UINT32> ( wcslen ( content.body ) ), app.body_format, body_rect, app.text_brush );
 
 }
 
 void draw_hint_bar (  ) {
 
-    wchar_t buffer[160];
-    swprintf ( buffer, 160, L"Step %d of %d   \u00B7   Space: next   \u00B7   Backspace: previous   \u00B7   Esc: quit", app.current_stage + 1, stage_count );
+	wchar_t buffer[160];
+	swprintf ( buffer, 160, L"Step %d of %d   \u00B7   Space: next   \u00B7   Backspace: previous   \u00B7   Esc: quit", app.current_stage + 1, stage_count );
+	D2D1_RECT_F hint_rect = D2D1::RectF (
 
-    D2D1_RECT_F hint_rect = D2D1::RectF (
-        0.0f, static_cast<float> ( app.client_height ) - 42.0f,
-        static_cast<float> ( app.client_width ), static_cast<float> ( app.client_height ) - 14.0f
-    );
+		0.0f, static_cast<float> ( app.client_height ) - 42.0f,
+		static_cast<float> ( app.client_width ), static_cast<float> ( app.client_height ) - 14.0f
+	
+	);
 
-    app.render_target -> DrawText ( buffer, static_cast<UINT32> ( wcslen ( buffer ) ), app.hint_format, hint_rect, app.faint_brush );
+	app.render_target -> DrawText ( buffer, static_cast<UINT32> ( wcslen ( buffer ) ), app.hint_format, hint_rect, app.faint_brush );
 
 }
 
