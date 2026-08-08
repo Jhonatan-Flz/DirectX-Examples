@@ -1,4 +1,4 @@
-﻿#include "include\common_direct2d.hpp"
+﻿#include "include/common.hpp"
 
 static ID2D1Factory* pFactory = nullptr;
 static ID2D1HwndRenderTarget* pRenderTarget = nullptr;

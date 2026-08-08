@@ -1,7 +1,4 @@
-#include <stdlib.h>
-#include <time.h>
-#include "include\common_direct2d.hpp"
-using namespace std;
+#include "include/common.hpp"
 
 ID2D1Factory* pD2DFactory = nullptr;
 ID2D1HwndRenderTarget* pRenderTarget = nullptr;

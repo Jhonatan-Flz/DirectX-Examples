@@ -1,4 +1,4 @@
-#include "include/common_direct2d.hpp"
+#include "include/common.hpp"
 
 constexpr int initial_window_width = 800;
 constexpr int initial_window_height = 600;
@@ -25,31 +25,25 @@ struct square_app {
 square_app app;
 
 inline float clamp_float ( float value, float low, float high ) { return maximum_float ( minimum_float ( value, high ), low ); }
-
 HRESULT resources_create ( HWND handle ) {
 
 	HRESULT result = S_OK;
-
-	if ( ! app.factory ) { result = D2D1CreateFactory ( D2D1_FACTORY_TYPE_SINGLE_THREADED, &app.factory ); }
+	if ( !app.factory ) { result = D2D1CreateFactory ( D2D1_FACTORY_TYPE_SINGLE_THREADED, &app.factory ); }
 	if ( SUCCEEDED ( result ) && ! app.render_target ) {
 
 		RECT client_rectangle;
 		GetClientRect ( handle, &client_rectangle );
 
-		D2D1_SIZE_U size = D2D1::SizeU (
-			client_rectangle.right - client_rectangle.left,
-			client_rectangle.bottom - client_rectangle.top
-		);
-
+		D2D1_SIZE_U size = D2D1::SizeU ( client_rectangle.right - client_rectangle.left, client_rectangle.bottom - client_rectangle.top );
 		result = app.factory -> CreateHwndRenderTarget (
+		
 			D2D1::RenderTargetProperties (  ),
 			D2D1::HwndRenderTargetProperties ( handle, size ),
 			&app.render_target
+		
 		);
 
-		if ( SUCCEEDED ( result ) ) {
-			result = app.render_target -> CreateSolidColorBrush ( D2D1::ColorF ( D2D1::ColorF::Blue ), &app.blue_brush );
-		}
+		if ( SUCCEEDED ( result ) ) { result = app.render_target -> CreateSolidColorBrush ( D2D1::ColorF ( D2D1::ColorF::Blue ), &app.blue_brush ); }
 
 	}
 
@@ -221,10 +215,12 @@ int wWinMain ( HINSTANCE handle_instance, HINSTANCE deprecated_instance, PWSTR, 
           nullptr, nullptr, handle_instance, nullptr
      );
 
-     if ( !handle ) {
-          MessageBox ( nullptr, L"Failed to create the window.", L"Error", MB_ICONERROR );
-          return 0;
-     }
+     if ( !handle ) { 
+		
+		MessageBox ( nullptr, L"Failed to create the window.", L"Error", MB_ICONERROR ); 
+		return 0; 
+	
+	}
 
      ShowWindow ( handle, cmd );
      UpdateWindow ( handle );
