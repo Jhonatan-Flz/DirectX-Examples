@@ -10,7 +10,7 @@
 template <typename T>
 inline void safe_release ( T*& pointer ) {
 
-    if ( pointer ) {
+	if ( pointer ) {
 
 		pointer -> Release (  );
 		pointer = nullptr;
