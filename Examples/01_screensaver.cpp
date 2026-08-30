@@ -13,18 +13,16 @@ void InitDirectX ( HWND handle ) {
 	RECT rc;
 	GetClientRect ( handle, &rc );
 	pD2DFactory -> CreateHwndRenderTarget (
+
 		D2D1::RenderTargetProperties (  ),
 		D2D1::HwndRenderTargetProperties ( handle, D2D1::SizeU ( rc.right - rc.left, rc.bottom - rc.top ) ),
 		&pRenderTarget
+	
 	);
 
 	pRenderTarget -> CreateSolidColorBrush ( D2D1::ColorF ( D2D1::ColorF::White ), &pBrush );
 
-	DWriteCreateFactory (
-		DWRITE_FACTORY_TYPE_SHARED,
-		__uuidof ( IDWriteFactory ),
-		reinterpret_cast<IUnknown**> ( &pDWriteFactory )
-	);
+	DWriteCreateFactory ( DWRITE_FACTORY_TYPE_SHARED, __uuidof ( IDWriteFactory ), reinterpret_cast<IUnknown**> ( &pDWriteFactory ) );
 
 	pDWriteFactory -> CreateTextFormat (
 
@@ -153,9 +151,9 @@ int wWinMain ( HINSTANCE handle_instance, HINSTANCE deprecated_instance, LPWSTR 
 
 		if ( colision && pBrush ) {
 
-			float r = static_cast<float> ( rand (  ) % 100 ) / 100.0f;
-			float g = static_cast<float> ( rand (  ) % 100 ) / 100.0f;
-			float b = static_cast<float> ( rand (  ) % 100 ) / 100.0f;
+			float r = static_cast <float> ( rand (  ) % 100 ) / 100.0f;
+			float g = static_cast <float> ( rand (  ) % 100 ) / 100.0f;
+			float b = static_cast <float> ( rand (  ) % 100 ) / 100.0f;
 
 			pBrush -> SetColor ( D2D1::ColorF ( r + 0.2f, g + 0.2f, b + 0.2f ) );
 
