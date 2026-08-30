@@ -111,30 +111,20 @@ bool point_in_triangle ( D2D1_POINT_2F point, D2D1_POINT_2F a, D2D1_POINT_2F b, 
 
 HRESULT resources_create ( HWND hwnd ) {
 
-	HRESULT result = S_OK;
+	HRESULT result = ensure_d2d_factory ( app.factory );
 
-	if ( !app.factory ) { result = D2D1CreateFactory ( D2D1_FACTORY_TYPE_SINGLE_THREADED, &app.factory ); }
-
-	if ( SUCCEEDED ( result ) && ! app.dwrite_factory ) {
-
-		result = DWriteCreateFactory (
-
-			DWRITE_FACTORY_TYPE_SHARED,
-			__uuidof ( IDWriteFactory ),
-			reinterpret_cast<IUnknown**> ( &app.dwrite_factory )
-		
-		);
-
-	}
+	if ( SUCCEEDED ( result ) ) { result = ensure_dwrite_factory ( app.dwrite_factory ); }
 
 	if ( SUCCEEDED ( result ) && !app.title_format ) {
 
-		result = app.dwrite_factory -> CreateTextFormat (
+		result = create_text_format (
 		
-			L"Segoe UI", nullptr,
-			DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-			30.0f, L"en-us",
-			&app.title_format
+			app.dwrite_factory,
+			L"Segoe UI",
+			DWRITE_FONT_WEIGHT_BOLD,
+			DWRITE_FONT_STYLE_NORMAL,
+			30.0f,
+			app.title_format
 		
 		);
 
@@ -144,12 +134,14 @@ HRESULT resources_create ( HWND hwnd ) {
 
 	if ( SUCCEEDED ( result ) && ! app.body_format ) {
 
-		result = app.dwrite_factory -> CreateTextFormat (
+		result = create_text_format (
 		
-			L"Segoe UI", nullptr,
-			DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-			18.0f, L"en-us",
-			&app.body_format
+			app.dwrite_factory,
+			L"Segoe UI",
+			DWRITE_FONT_WEIGHT_NORMAL,
+			DWRITE_FONT_STYLE_NORMAL,
+			18.0f,
+			app.body_format
 		
 		);
 
@@ -159,12 +151,14 @@ HRESULT resources_create ( HWND hwnd ) {
 
 	if ( SUCCEEDED ( result ) && ! app.label_format ) {
 
-		result = app.dwrite_factory -> CreateTextFormat (
+		result = create_text_format (
 
-			L"Segoe UI", nullptr,
-			DWRITE_FONT_WEIGHT_SEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-			14.0f, L"en-us",
-			&app.label_format
+			app.dwrite_factory,
+			L"Segoe UI",
+			DWRITE_FONT_WEIGHT_SEMI_BOLD,
+			DWRITE_FONT_STYLE_NORMAL,
+			14.0f,
+			app.label_format
 		
 		);
 
@@ -172,12 +166,14 @@ HRESULT resources_create ( HWND hwnd ) {
 
 	if ( SUCCEEDED ( result ) && ! app.caption_format ) {
 
-		result = app.dwrite_factory -> CreateTextFormat (
-
-			L"Segoe UI", nullptr,
-			DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_ITALIC, DWRITE_FONT_STRETCH_NORMAL,
-			14.0f, L"en-us",
-			&app.caption_format
+		result = create_text_format (
+		
+			app.dwrite_factory,
+			L"Segoe UI",
+			DWRITE_FONT_WEIGHT_NORMAL,
+			DWRITE_FONT_STYLE_ITALIC,
+			14.0f,
+			app.caption_format
 		
 		);
 
@@ -185,12 +181,14 @@ HRESULT resources_create ( HWND hwnd ) {
 
 	if ( SUCCEEDED ( result ) && ! app.hint_format ) {
 
-		result = app.dwrite_factory -> CreateTextFormat (
-
-			L"Segoe UI", nullptr,
-			DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-			14.0f, L"en-us",
-			&app.hint_format
+		result = create_text_format (
+		
+			app.dwrite_factory,
+			L"Segoe UI",
+			DWRITE_FONT_WEIGHT_NORMAL,
+			DWRITE_FONT_STYLE_NORMAL,
+			14.0f,
+			app.hint_format
 		
 		);
 
@@ -198,45 +196,17 @@ HRESULT resources_create ( HWND hwnd ) {
 
 	}
 
-	if ( SUCCEEDED ( result ) && !app.render_target ) {
+	if ( SUCCEEDED ( result ) ) { result = ensure_hwnd_render_target ( app.factory, hwnd, app.render_target ); }
 
-		RECT client_rectangle;
-		GetClientRect ( hwnd, &client_rectangle );
+	if ( SUCCEEDED ( result ) ) { result = ensure_solid_color_brush ( app.render_target, D2D1::ColorF ( D2D1::ColorF::Black ), app.text_brush ); }
 
-		D2D1_SIZE_U size = D2D1::SizeU ( client_rectangle.right - client_rectangle.left, client_rectangle.bottom - client_rectangle.top );
-		result = app.factory -> CreateHwndRenderTarget ( D2D1::RenderTargetProperties (  ), D2D1::HwndRenderTargetProperties ( hwnd, size ), &app.render_target );
+	if ( SUCCEEDED ( result ) ) { result = ensure_solid_color_brush ( app.render_target, D2D1::ColorF ( 0.16f, 0.38f, 0.92f ), app.accent_brush ); }
 
-	}
+	if ( SUCCEEDED ( result ) ) { result = ensure_solid_color_brush ( app.render_target, D2D1::ColorF ( 0.75f, 0.75f, 0.78f ), app.faint_brush ); }
 
-	if ( SUCCEEDED ( result ) && ! app.text_brush ) {
-	
-		result = app.render_target -> CreateSolidColorBrush ( D2D1::ColorF ( D2D1::ColorF::Black ), &app.text_brush );
-	
-	}
+	if ( SUCCEEDED ( result ) ) { result = ensure_solid_color_brush ( app.render_target, D2D1::ColorF ( 0.92f, 0.42f, 0.13f ), app.point_brush ); }
 
-	if ( SUCCEEDED ( result ) && ! app.accent_brush ) {
-	
-		result = app.render_target -> CreateSolidColorBrush ( D2D1::ColorF ( 0.16f, 0.38f, 0.92f ), &app.accent_brush );
-	
-	}
-
-	if ( SUCCEEDED ( result ) && ! app.faint_brush ) {
-	
-		result = app.render_target -> CreateSolidColorBrush ( D2D1::ColorF ( 0.75f, 0.75f, 0.78f ), &app.faint_brush );
-	
-	}
-
-	if ( SUCCEEDED ( result ) && ! app.point_brush ) {
-	
-		result = app.render_target -> CreateSolidColorBrush ( D2D1::ColorF ( 0.92f, 0.42f, 0.13f ), &app.point_brush );
-	
-	}
-
-	if ( SUCCEEDED ( result ) && ! app.second_shape_brush ) {
-
-		result = app.render_target -> CreateSolidColorBrush ( D2D1::ColorF ( 0.20f, 0.70f, 0.45f ), &app.second_shape_brush );
-	
-	}
+	if ( SUCCEEDED ( result ) ) { result = ensure_solid_color_brush ( app.render_target, D2D1::ColorF ( 0.20f, 0.70f, 0.45f ), app.second_shape_brush ); }
 
 	return result;
 
@@ -244,12 +214,7 @@ HRESULT resources_create ( HWND hwnd ) {
 
 void resources_discard (  ) {
 
-    safe_release ( app.second_shape_brush );
-    safe_release ( app.point_brush );
-    safe_release ( app.faint_brush );
-    safe_release ( app.accent_brush );
-    safe_release ( app.text_brush );
-    safe_release ( app.render_target );
+	safe_release_all ( app.second_shape_brush, app.point_brush, app.faint_brush, app.accent_brush, app.text_brush, app.render_target );
 
 }
 
@@ -420,19 +385,14 @@ void draw_diagram (  ) {
 			draw_point_dot ( vertex_a );
 			draw_point_dot ( vertex_b );
 			draw_point_dot ( vertex_c );
-
 			draw_caption ( L"ID2D1PathGeometry  \u00B7  BeginFigure -> AddLine -> AddLine -> EndFigure -> Close" );
-
 			break;
 
 		}
 
 		case 3: {
 
-			D2D1::Matrix3x2F transform =
-				D2D1::Matrix3x2F::Rotation ( 24.0f, center ) *
-				D2D1::Matrix3x2F::Scale ( D2D1::SizeF ( 0.82f, 0.82f ), center );
-
+			D2D1::Matrix3x2F transform = D2D1::Matrix3x2F::Rotation ( 24.0f, center ) * D2D1::Matrix3x2F::Scale ( D2D1::SizeF ( 0.82f, 0.82f ), center );
 			D2D1_POINT_2F transformed_a = transform.TransformPoint ( vertex_a );
 			D2D1_POINT_2F transformed_b = transform.TransformPoint ( vertex_b );
 			D2D1_POINT_2F transformed_c = transform.TransformPoint ( vertex_c );
@@ -445,7 +405,6 @@ void draw_diagram (  ) {
 			draw_point_dot ( transformed_c );
 
 			draw_caption ( L"D2D1::Matrix3x2F  \u00B7  Rotation ( 24\u00B0 ) x Scale ( 0.82 )  \u00B7  faint = before, solid = after" );
-
 			break;
 
 		}

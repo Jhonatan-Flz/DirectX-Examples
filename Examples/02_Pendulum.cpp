@@ -33,10 +33,9 @@ float g_bob_radius = 16.0f;
 
 void get_pivot ( HWND handle, float& out_x, float& out_y ) {
 
-	RECT rect_handle;
-	GetClientRect ( handle, &rect_handle );
+	D2D1_SIZE_U size = get_client_size ( handle );
 
-	float width = static_cast<float> ( rect_handle.right - rect_handle.left );
+	float width = static_cast<float> ( size.width );
 	out_x = width / 2.0f;
 	out_y = 50.0f;
 
@@ -44,8 +43,7 @@ void get_pivot ( HWND handle, float& out_x, float& out_y ) {
 
 void discard_graphics_resources (  ) {
 
-	safe_release ( pBrush );
-	safe_release ( pRenderTarget );
+	safe_release_all ( pBrush, pRenderTarget );
 
 }
 
@@ -53,27 +51,17 @@ HRESULT create_text_resources (  ) {
 
 	if ( pTextFormat ) { return S_OK; }
 
-	if ( !pDWriteFactory ) {
+	HRESULT hr = ensure_dwrite_factory ( pDWriteFactory );
+	if ( FAILED ( hr ) ) { return hr; }
 
-		HRESULT hr = DWriteCreateFactory (
-			DWRITE_FACTORY_TYPE_SHARED,
-			__uuidof ( IDWriteFactory ),
-			reinterpret_cast<IUnknown**> ( &pDWriteFactory )
-		);
+	hr = create_text_format (
 
-		if ( FAILED ( hr ) ) { return hr; }
-
-	}
-
-	HRESULT hr = pDWriteFactory -> CreateTextFormat (
+		pDWriteFactory,
 		L"Segoe UI",
-		nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL,
 		DWRITE_FONT_STYLE_NORMAL,
-		DWRITE_FONT_STRETCH_NORMAL,
 		18.0f,
-		L"en-us",
-		&pTextFormat
+		pTextFormat
 	);
 
 	if ( SUCCEEDED ( hr ) ) {
@@ -91,42 +79,17 @@ HRESULT create_graphics_resources ( HWND handle ) {
 
 	if ( pRenderTarget ) { return S_OK; }
 
-	RECT rect_handle;
-	GetClientRect ( handle, &rect_handle );
-
-	D2D1_SIZE_U size = D2D1::SizeU ( rect_handle.right - rect_handle.left, rect_handle.bottom - rect_handle.top );
-
-	HRESULT hr = pD2DFactory -> CreateHwndRenderTarget (
-
-		D2D1::RenderTargetProperties (  ),
-		D2D1::HwndRenderTargetProperties ( handle, size ),
-		&pRenderTarget
-	
-	);
+	HRESULT hr = ensure_hwnd_render_target ( pD2DFactory, handle, pRenderTarget );
 
 	if ( SUCCEEDED ( hr ) ) {
 
-		hr = pRenderTarget -> CreateSolidColorBrush ( D2D1::ColorF ( D2D1::ColorF::White ), &pBrush );
+		hr = ensure_solid_color_brush ( pRenderTarget, D2D1::ColorF ( D2D1::ColorF::White ), pBrush );
 
 	}
 
 	if ( SUCCEEDED ( hr ) ) { hr = create_text_resources (  ); }
 
 	return hr;
-
-}
-
-void resize_render_target ( UINT width, UINT height ) {
-
-	if ( pRenderTarget ) {
-
-		D2D1_SIZE_U size;
-		size.width = width;
-		size.height = height;
-
-		pRenderTarget -> Resize ( size );
-
-	}
 
 }
 
@@ -179,13 +142,7 @@ void paint_window ( HWND handle ) {
 	pRenderTarget -> FillEllipse ( D2D1::Ellipse ( D2D1::Point2F ( pivot_x, pivot_y ), 4.0f, 4.0f ), pBrush );
 
 	pBrush -> SetColor ( D2D1::ColorF ( D2D1::ColorF::White ) );
-	pRenderTarget -> DrawText (
-		PAUSE_HINT,
-		static_cast<UINT32> ( wcslen ( PAUSE_HINT ) ),
-		pTextFormat,
-		D2D1::RectF ( 16.0f, 14.0f, 260.0f, 44.0f ),
-		pBrush
-	);
+	draw_text ( pRenderTarget, PAUSE_HINT, pTextFormat, D2D1::RectF ( 16.0f, 14.0f, 260.0f, 44.0f ), pBrush );
 
 	hr = pRenderTarget -> EndDraw (  );
 	if ( hr == D2DERR_RECREATE_TARGET ) { discard_graphics_resources (  ); }
@@ -290,7 +247,7 @@ LRESULT window_procedure ( HWND handle, UINT message_number, WPARAM word_param, 
 	switch ( message_number ) {
 
 		case WM_CREATE:
-			D2D1CreateFactory ( D2D1_FACTORY_TYPE_SINGLE_THREADED, &pD2DFactory );
+			ensure_d2d_factory ( pD2DFactory );
 			g_start_time_ms = GetTickCount (  );
 			g_pause_offset_ms = 0;
 			g_paused = false;
@@ -298,7 +255,7 @@ LRESULT window_procedure ( HWND handle, UINT message_number, WPARAM word_param, 
 		return 0;
 
 		case WM_SIZE:
-			resize_render_target ( LOWORD ( long_param ), HIWORD ( long_param ) );
+			resize_hwnd_render_target ( pRenderTarget, LOWORD ( long_param ), HIWORD ( long_param ) );
 		return 0;
 
 		case WM_TIMER:
@@ -335,9 +292,7 @@ LRESULT window_procedure ( HWND handle, UINT message_number, WPARAM word_param, 
 		case WM_DESTROY:
 			KillTimer ( handle, TIMER_ID );
 			discard_graphics_resources (  );
-			safe_release ( pTextFormat );
-			safe_release ( pDWriteFactory );
-			safe_release ( pD2DFactory );
+			safe_release_all ( pTextFormat, pDWriteFactory, pD2DFactory );
 			PostQuitMessage ( 0 );
 		return 0;
 

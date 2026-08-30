@@ -8,49 +8,18 @@ IDWriteTextFormat* pTextFormat = nullptr;
 
 void InitDirectX ( HWND handle ) {
 
-	D2D1CreateFactory ( D2D1_FACTORY_TYPE_SINGLE_THREADED, &pD2DFactory );
-
-	RECT rc;
-	GetClientRect ( handle, &rc );
-	pD2DFactory -> CreateHwndRenderTarget (
-
-		D2D1::RenderTargetProperties (  ),
-		D2D1::HwndRenderTargetProperties ( handle, D2D1::SizeU ( rc.right - rc.left, rc.bottom - rc.top ) ),
-		&pRenderTarget
-	
-	);
-
-	pRenderTarget -> CreateSolidColorBrush ( D2D1::ColorF ( D2D1::ColorF::White ), &pBrush );
-
-	DWriteCreateFactory ( DWRITE_FACTORY_TYPE_SHARED, __uuidof ( IDWriteFactory ), reinterpret_cast<IUnknown**> ( &pDWriteFactory ) );
-
-	pDWriteFactory -> CreateTextFormat (
-
-		L"Segoe UI",
-		NULL,
-		DWRITE_FONT_WEIGHT_EXTRA_BOLD,
-		DWRITE_FONT_STYLE_NORMAL,
-		DWRITE_FONT_STRETCH_NORMAL,
-		60.0f,
-		L"en-us",
-		&pTextFormat
-	
-	);
+	ensure_d2d_factory ( pD2DFactory );
+	ensure_hwnd_render_target ( pD2DFactory, handle, pRenderTarget );
+	ensure_solid_color_brush ( pRenderTarget, D2D1::ColorF ( D2D1::ColorF::White ), pBrush );
+	ensure_dwrite_factory ( pDWriteFactory );
+	create_text_format ( pDWriteFactory, L"Segoe UI", DWRITE_FONT_WEIGHT_EXTRA_BOLD, DWRITE_FONT_STYLE_NORMAL, 60.0f, pTextFormat );
 
 	pTextFormat -> SetTextAlignment ( DWRITE_TEXT_ALIGNMENT_CENTER );
 	pTextFormat -> SetParagraphAlignment ( DWRITE_PARAGRAPH_ALIGNMENT_CENTER );
 
 }
 
-void CleanupDirectX (  ) {
-
-	if ( pTextFormat ) { pTextFormat -> Release (  ); }
-	if ( pDWriteFactory ) { pDWriteFactory -> Release (  ); }
-	if ( pBrush ) { pBrush -> Release (  ); }
-	if ( pRenderTarget ) { pRenderTarget -> Release (  ); }
-	if ( pD2DFactory ) { pD2DFactory -> Release (  ); }
-
-}
+void CleanupDirectX (  ) { safe_release_all ( pTextFormat, pDWriteFactory, pBrush, pRenderTarget, pD2DFactory ); }
 
 LRESULT window_procedure ( HWND handle, UINT message_number, WPARAM word_param, LPARAM long_param ) {
 
@@ -61,14 +30,12 @@ LRESULT window_procedure ( HWND handle, UINT message_number, WPARAM word_param, 
 			if ( pRenderTarget ) {
 
 				pRenderTarget -> BeginDraw (  );
-
 				pRenderTarget -> Clear ( D2D1::ColorF ( D2D1::ColorF::Black ) );
 
 				D2D1_SIZE_F renderSize = pRenderTarget -> GetSize (  );
 				D2D1_RECT_F layoutRect = D2D1::RectF ( 0, 0, renderSize.width, renderSize.height );
 
-				pRenderTarget -> DrawTextW ( L"DVD", 3, pTextFormat, layoutRect, pBrush );
-
+				draw_text ( pRenderTarget, L"DVD", pTextFormat, layoutRect, pBrush );
 				pRenderTarget -> EndDraw (  );
 
 			}
@@ -110,7 +77,6 @@ int wWinMain ( HINSTANCE handle_instance, HINSTANCE deprecated_instance, LPWSTR 
 	};
 
 	RegisterClass ( &wc );
-
 	HWND handle = CreateWindow (
 
 		L"Screen saver",
@@ -127,12 +93,7 @@ int wWinMain ( HINSTANCE handle_instance, HINSTANCE deprecated_instance, LPWSTR 
 	
 	);
 
-	if ( handle != nullptr ) {
-
-		InitDirectX ( handle ); 
-		ShowWindow ( handle, CMD );
-
-	}
+	if ( handle != nullptr ) { InitDirectX ( handle ); ShowWindow ( handle, CMD ); }
 
 	RECT screen;
 	SystemParametersInfo ( SPI_GETWORKAREA, 0, &screen, 0 );
@@ -160,7 +121,6 @@ int wWinMain ( HINSTANCE handle_instance, HINSTANCE deprecated_instance, LPWSTR 
 		}
 
 		OffsetRect ( &rect_handle, dx, dy );
-
 		while ( PeekMessage ( &message, nullptr, 0, 0, PM_REMOVE ) ) {
 
 			TranslateMessage ( &message );
@@ -168,18 +128,7 @@ int wWinMain ( HINSTANCE handle_instance, HINSTANCE deprecated_instance, LPWSTR 
 		
 		}
 
-		SetWindowPos (
-
-			handle,
-			nullptr,
-			rect_handle.left,
-			rect_handle.top,
-			rect_handle.right - rect_handle.left,
-			rect_handle.bottom - rect_handle.top,
-			0
-		
-		);
-
+		SetWindowPos ( handle, nullptr, rect_handle.left, rect_handle.top, rect_handle.right - rect_handle.left, rect_handle.bottom - rect_handle.top, 0 );
 		InvalidateRect ( handle, NULL, FALSE );
 		Sleep ( 1000 / 500 );
 

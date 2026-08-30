@@ -8,61 +8,23 @@ static ID2D1SolidColorBrush* pBlueBrush = nullptr;
 static ID2D1SolidColorBrush* pRedBrush = nullptr;
 static ID2D1SolidColorBrush* pGridBrush = nullptr;
 
-void release_brush ( ID2D1SolidColorBrush *& brush ) {
-
-	if ( brush ) {
-
-		brush -> Release (  );
-		brush = nullptr;
-
-	}
-
-}
-
 void discard_device_resources (  ) {
 
-	release_brush ( pPinkBrush );
-	release_brush ( pGreenBrush );
-	release_brush ( pBlueBrush );
-	release_brush ( pRedBrush );
-	release_brush ( pGridBrush );
-
-	if ( pRenderTarget ) {
-
-		pRenderTarget -> Release (  );
-		pRenderTarget = nullptr;
-
-	}
+	safe_release_all ( pPinkBrush, pGreenBrush, pBlueBrush, pRedBrush, pGridBrush, pRenderTarget );
 
 }
 
 HRESULT create_colored_brushes (  ) {
 
-	HRESULT hr = pRenderTarget -> CreateSolidColorBrush ( D2D1::ColorF ( 1.0f, 0.10f, 0.50f ), &pPinkBrush );
+	HRESULT hr = ensure_solid_color_brush ( pRenderTarget, D2D1::ColorF ( 1.0f, 0.10f, 0.50f ), pPinkBrush );
 
-	if ( SUCCEEDED ( hr ) ) {
+	if ( SUCCEEDED ( hr ) ) { hr = ensure_solid_color_brush ( pRenderTarget, D2D1::ColorF ( 0.18f, 0.82f, 0.32f ), pGreenBrush ); }
 
-		hr = pRenderTarget -> CreateSolidColorBrush ( D2D1::ColorF ( 0.18f, 0.82f, 0.32f ), &pGreenBrush );
+	if ( SUCCEEDED ( hr ) ) { hr = ensure_solid_color_brush ( pRenderTarget, D2D1::ColorF ( 0.12f, 0.46f, 1.0f ), pBlueBrush ); }
 
-	}
+	if ( SUCCEEDED ( hr ) ) { hr = ensure_solid_color_brush ( pRenderTarget, D2D1::ColorF ( 1.0f, 0.16f, 0.12f ), pRedBrush ); }
 
-	if ( SUCCEEDED ( hr ) ) {
-
-		hr = pRenderTarget -> CreateSolidColorBrush ( D2D1::ColorF ( 0.12f, 0.46f, 1.0f ), &pBlueBrush );
-
-	}
-
-	if ( SUCCEEDED ( hr ) ) {
-
-		hr = pRenderTarget -> CreateSolidColorBrush ( D2D1::ColorF ( 1.0f, 0.16f, 0.12f ), &pRedBrush );
-
-	}
-
-	if ( SUCCEEDED ( hr ) ) {
-
-		hr = pRenderTarget -> CreateSolidColorBrush ( D2D1::ColorF ( 0.36f, 0.36f, 0.36f ), &pGridBrush );
-
-	}
+	if ( SUCCEEDED ( hr ) ) { hr = ensure_solid_color_brush ( pRenderTarget, D2D1::ColorF ( 0.36f, 0.36f, 0.36f ), pGridBrush ); }
 
 	return hr;
 
@@ -72,23 +34,10 @@ HRESULT create_device_resources ( HWND handle ) {
 
 	if ( pRenderTarget ) { return S_OK; }
 
-	if ( !pFactory ) {
+	HRESULT hr = ensure_d2d_factory ( pFactory );
+	if ( FAILED ( hr ) ) { return hr; }
 
-		HRESULT hr = D2D1CreateFactory ( D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory );
-		if ( FAILED ( hr ) ) { return hr; }
-
-	}
-
-	RECT rect_handle;
-	GetClientRect ( handle, &rect_handle );
-
-	D2D1_SIZE_U size = D2D1::SizeU ( rect_handle.right - rect_handle.left, rect_handle.bottom - rect_handle.top );
-
-	HRESULT hr = pFactory -> CreateHwndRenderTarget (
-		D2D1::RenderTargetProperties (  ),
-		D2D1::HwndRenderTargetProperties ( handle, size ),
-		&pRenderTarget
-	);
+	hr = ensure_hwnd_render_target ( pFactory, handle, pRenderTarget );
 
 	if ( SUCCEEDED ( hr ) ) { hr = create_colored_brushes (  ); }
 
@@ -193,9 +142,7 @@ LRESULT window_procedure ( HWND handle, UINT message_number, WPARAM word_param, 
 		case WM_SIZE:
 			if ( pRenderTarget ) {
 
-				RECT rect_handle;
-				GetClientRect ( handle, &rect_handle );
-				pRenderTarget -> Resize ( D2D1::SizeU ( rect_handle.right - rect_handle.left, rect_handle.bottom - rect_handle.top ) );
+				resize_hwnd_render_target ( pRenderTarget, LOWORD ( long_param ), HIWORD ( long_param ) );
 				InvalidateRect ( handle, nullptr, FALSE );
 
 			}
@@ -213,13 +160,7 @@ LRESULT window_procedure ( HWND handle, UINT message_number, WPARAM word_param, 
 
 		case WM_DESTROY:
 			discard_device_resources (  );
-
-			if ( pFactory ) {
-
-				pFactory -> Release (  );
-				pFactory = nullptr;
-
-			}
+			safe_release ( pFactory );
 
 			PostQuitMessage ( 0 );
 		return 0;

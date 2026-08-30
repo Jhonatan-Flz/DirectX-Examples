@@ -24,28 +24,13 @@ struct square_app {
 
 square_app app;
 
-inline float clamp_float ( float value, float low, float high ) { return maximum_float ( minimum_float ( value, high ), low ); }
 HRESULT resources_create ( HWND handle ) {
 
-	HRESULT result = S_OK;
-	if ( !app.factory ) { result = D2D1CreateFactory ( D2D1_FACTORY_TYPE_SINGLE_THREADED, &app.factory ); }
-	if ( SUCCEEDED ( result ) && ! app.render_target ) {
+	HRESULT result = ensure_d2d_factory ( app.factory );
 
-		RECT client_rectangle;
-		GetClientRect ( handle, &client_rectangle );
+	if ( SUCCEEDED ( result ) ) { result = ensure_hwnd_render_target ( app.factory, handle, app.render_target ); }
 
-		D2D1_SIZE_U size = D2D1::SizeU ( client_rectangle.right - client_rectangle.left, client_rectangle.bottom - client_rectangle.top );
-		result = app.factory -> CreateHwndRenderTarget (
-		
-			D2D1::RenderTargetProperties (  ),
-			D2D1::HwndRenderTargetProperties ( handle, size ),
-			&app.render_target
-		
-		);
-
-		if ( SUCCEEDED ( result ) ) { result = app.render_target -> CreateSolidColorBrush ( D2D1::ColorF ( D2D1::ColorF::Blue ), &app.blue_brush ); }
-
-	}
+	if ( SUCCEEDED ( result ) ) { result = ensure_solid_color_brush ( app.render_target, D2D1::ColorF ( D2D1::ColorF::Blue ), app.blue_brush ); }
 
 	return result;
 
@@ -53,8 +38,7 @@ HRESULT resources_create ( HWND handle ) {
 
 void resources_discard (  ) {
 
-	safe_release ( app.blue_brush );
-	safe_release ( app.render_target );
+	safe_release_all ( app.blue_brush, app.render_target );
 
 }
 
@@ -89,7 +73,7 @@ void on_resize ( UINT width, UINT height ) {
 	app.client_width = static_cast <int> ( width );
 	app.client_height = static_cast <int> ( height );
 
-	if ( app.render_target ) { app.render_target -> Resize ( D2D1::SizeU ( width, height ) ); }
+	resize_hwnd_render_target ( app.render_target, width, height );
 
 	app.square_x = clamp_float ( app.square_x, 0, static_cast <float> ( app.client_width ) - app.square_size );
 	app.square_y = clamp_float ( app.square_y, 0, static_cast <float> ( app.client_height ) - app.square_size );
