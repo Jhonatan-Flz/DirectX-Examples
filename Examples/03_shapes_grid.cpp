@@ -8,24 +8,15 @@ static ID2D1SolidColorBrush* pBlueBrush = nullptr;
 static ID2D1SolidColorBrush* pRedBrush = nullptr;
 static ID2D1SolidColorBrush* pGridBrush = nullptr;
 
-void discard_device_resources (  ) {
-
-	safe_release_all ( pPinkBrush, pGreenBrush, pBlueBrush, pRedBrush, pGridBrush, pRenderTarget );
-
-}
+void discard_device_resources (  ) { safe_release_all ( pPinkBrush, pGreenBrush, pBlueBrush, pRedBrush, pGridBrush, pRenderTarget ); }
 
 HRESULT create_colored_brushes (  ) {
 
 	HRESULT hr = ensure_solid_color_brush ( pRenderTarget, D2D1::ColorF ( 1.0f, 0.10f, 0.50f ), pPinkBrush );
-
 	if ( SUCCEEDED ( hr ) ) { hr = ensure_solid_color_brush ( pRenderTarget, D2D1::ColorF ( 0.18f, 0.82f, 0.32f ), pGreenBrush ); }
-
 	if ( SUCCEEDED ( hr ) ) { hr = ensure_solid_color_brush ( pRenderTarget, D2D1::ColorF ( 0.12f, 0.46f, 1.0f ), pBlueBrush ); }
-
 	if ( SUCCEEDED ( hr ) ) { hr = ensure_solid_color_brush ( pRenderTarget, D2D1::ColorF ( 1.0f, 0.16f, 0.12f ), pRedBrush ); }
-
 	if ( SUCCEEDED ( hr ) ) { hr = ensure_solid_color_brush ( pRenderTarget, D2D1::ColorF ( 0.36f, 0.36f, 0.36f ), pGridBrush ); }
-
 	return hr;
 
 }
@@ -38,11 +29,8 @@ HRESULT create_device_resources ( HWND handle ) {
 	if ( FAILED ( hr ) ) { return hr; }
 
 	hr = ensure_hwnd_render_target ( pFactory, handle, pRenderTarget );
-
 	if ( SUCCEEDED ( hr ) ) { hr = create_colored_brushes (  ); }
-
 	if ( FAILED ( hr ) ) { discard_device_resources (  ); }
-
 	return hr;
 
 }
@@ -50,7 +38,6 @@ HRESULT create_device_resources ( HWND handle ) {
 D2D1_RECT_F get_shape_rect ( float left, float top, float cell_size ) {
 
 	float padding = cell_size * 0.18f;
-
 	return D2D1::RectF ( left + padding, top + padding, left + cell_size - padding, top + cell_size - padding );
 
 }
@@ -108,13 +95,17 @@ void draw_centered_shapes_grid ( D2D1_SIZE_F window_size ) {
 	draw_triangle ( triangle, stroke_width );
 	draw_cross ( cross, stroke_width );
 	pRenderTarget -> DrawEllipse (
+
 		D2D1::Ellipse (
-			D2D1::Point2F ( ( circle.left + circle.right ) / 2.0f, ( circle.top + circle.bottom ) / 2.0f ),
-			( circle.right - circle.left ) / 2.0f,
+
+			D2D1::Point2F ( ( circle.left + circle.right ) / 2.0f, ( circle.top + circle.bottom ) / 2.0f ),			
+			( circle.right - circle.left ) / 2.0f,	
 			( circle.bottom - circle.top ) / 2.0f
-		),
-		pRedBrush,
+		
+		), 
+		pRedBrush, 
 		stroke_width
+
 	);
 
 }

@@ -24,8 +24,7 @@ inline float minimum_float ( float first, float second ) { return ( first < seco
 inline float maximum_float ( float first, float second ) { return ( first > second ) ? first : second; }
 inline float clamp_float ( float value, float low, float high ) { return maximum_float ( minimum_float ( value, high ), low ); }
 
-inline void safe_release_all (  ) {
-}
+inline void safe_release_all (  ) {  }
 
 template <typename T, typename... Others>
 inline void safe_release_all ( T*& pointer, Others*&... other_pointers ) {
@@ -56,13 +55,7 @@ inline HRESULT ensure_dwrite_factory ( IDWriteFactory*& factory ) {
 
 	if ( factory ) { return S_OK; }
 
-	return DWriteCreateFactory (
-
-		DWRITE_FACTORY_TYPE_SHARED,
-		__uuidof ( IDWriteFactory ),
-		reinterpret_cast<IUnknown**> ( &factory )
-	
-	);
+	return DWriteCreateFactory ( DWRITE_FACTORY_TYPE_SHARED, __uuidof ( IDWriteFactory ), reinterpret_cast <IUnknown**> ( &factory ) );
 
 }
 
@@ -129,8 +122,4 @@ inline void draw_text (
 	D2D1_RECT_F layout_rectangle,
 	ID2D1Brush* brush
 
-) {
-
-	render_target -> DrawTextW ( text, static_cast<UINT32> ( wcslen ( text ) ), text_format, layout_rectangle, brush );
-
-}
+) { render_target -> DrawTextW ( text, static_cast<UINT32> ( wcslen ( text ) ), text_format, layout_rectangle, brush ); }
